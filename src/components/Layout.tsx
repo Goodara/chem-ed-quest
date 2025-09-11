@@ -163,9 +163,8 @@ export const Layout: React.FC<{
       </main>
       
       <footer className="border-t bg-background">
-        <div className="container flex h-16 items-center justify-center text-sm text-muted-foreground">
-          © 2024 TransportEd. All rights reserved.
-        </div>
+        <div className="container flex h-16 items-center justify-center text-sm text-muted-foreground">© 2025
+ TransportEd. All rights reserved.</div>
       </footer>
     </div>;
 };
