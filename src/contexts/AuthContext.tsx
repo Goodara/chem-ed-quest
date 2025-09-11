@@ -85,33 +85,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
-      const redirectUrl = `${window.location.origin}/`;
-      
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            name: name
-          }
-        }
+      // Create user with auto-confirmation using admin API
+      const createResponse = await supabase.functions.invoke('create-user', {
+        body: { email, password, name }
       });
 
-      if (error) {
+      if (createResponse.error) {
+        throw new Error(createResponse.error.message);
+      }
+
+      // Sign in the user immediately after creation
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (signInError) {
         toast({
           variant: "destructive",
           title: "Sign Up Failed",
-          description: error.message
+          description: `Account created but sign in failed: ${signInError.message}`
         });
-      } else {
-        toast({
-          title: "Sign Up Successful",
-          description: "Please check your email to confirm your account."
-        });
+        return { error: signInError };
       }
 
-      return { error };
+      toast({
+        title: "Account Created!",
+        description: "Welcome! You have been automatically signed in."
+      });
+
+      return { error: null };
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -130,6 +133,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
+        // If email not confirmed, try to confirm it automatically
+        if (error.message === 'Email not confirmed') {
+          try {
+            const confirmResponse = await supabase.functions.invoke('confirm-user', {
+              body: { email }
+            });
+
+            if (confirmResponse.error) {
+              throw new Error(confirmResponse.error.message);
+            }
+
+            // Try signing in again after confirmation
+            const { error: retryError } = await supabase.auth.signInWithPassword({
+              email,
+              password
+            });
+
+            if (retryError) {
+              throw retryError;
+            }
+
+            toast({
+              title: "Welcome back!",
+              description: "Email confirmed and signed in successfully."
+            });
+            return { error: null };
+          } catch (confirmError: any) {
+            toast({
+              variant: "destructive",
+              title: "Sign In Failed",
+              description: `Email confirmation failed: ${confirmError.message}`
+            });
+            return { error: confirmError };
+          }
+        }
+
         toast({
           variant: "destructive",
           title: "Sign In Failed",
