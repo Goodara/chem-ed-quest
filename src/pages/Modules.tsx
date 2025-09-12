@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { motion } from 'framer-motion';
 import { 
   BookOpen, 
   Plus, 
@@ -145,8 +146,18 @@ export const Modules = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <motion.div 
+      className="container mx-auto p-6 space-y-6"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <motion.div 
+        className="flex items-center justify-between"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+      >
         <div>
           <h1 className="text-3xl font-bold">Learning Modules</h1>
           <p className="text-muted-foreground">
@@ -156,119 +167,153 @@ export const Modules = () => {
         
         {profile?.role === 'admin' && (
           <Link to="/admin/modules/new">
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Module
-            </Button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Module
+              </Button>
+            </motion.div>
           </Link>
         )}
-      </div>
+      </motion.div>
 
       {modules.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <BookOpen className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No modules available</h3>
-            <p className="text-muted-foreground mb-4">
-              {profile?.role === 'admin' 
-                ? "Create your first module to get started" 
-                : "Check back later for new content"}
-            </p>
-            {profile?.role === 'admin' && (
-              <Link to="/admin/modules/new">
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create First Module
-                </Button>
-              </Link>
-            )}
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+              <BookOpen className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">No modules available</h3>
+              <p className="text-muted-foreground mb-4">
+                {profile?.role === 'admin' 
+                  ? "Create your first module to get started" 
+                  : "Check back later for new content"}
+              </p>
+              {profile?.role === 'admin' && (
+                <Link to="/admin/modules/new">
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create First Module
+                  </Button>
+                </Link>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {modules.map((module) => {
+          {modules.map((module, index) => {
             const completed = isCompleted(module.id);
             const resources = getModuleResources(module);
 
             return (
-              <Card key={module.id} className="group hover:shadow-lg transition-all duration-300">
-                <CardHeader className="space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 space-y-1">
-                      <CardTitle className="text-lg leading-tight">
-                        {module.title}
-                      </CardTitle>
-                      <CardDescription className="text-sm">
-                        Added {new Date(module.created_at).toLocaleDateString()}
-                      </CardDescription>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      {completed && (
-                        <Badge variant="default" className="shrink-0">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Complete
-                        </Badge>
-                      )}
+              <motion.div
+                key={module.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                whileHover={{ y: -5 }}
+              >
+                <Card className="group hover:shadow-xl transition-all duration-500 cursor-pointer border-2 hover:border-primary/20">
+                  <CardHeader className="space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 space-y-1">
+                        <CardTitle className="text-lg leading-tight group-hover:text-primary transition-colors">
+                          {module.title}
+                        </CardTitle>
+                        <CardDescription className="text-sm">
+                          Added {new Date(module.created_at).toLocaleDateString()}
+                        </CardDescription>
+                      </div>
                       
-                      {!completed && (
-                        <Badge variant="secondary" className="shrink-0">
-                          <Clock className="h-3 w-3 mr-1" />
-                          Pending
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-
-                  {resources.length > 0 && (
-                    <div className="flex items-center space-x-3 pt-2">
-                      <span className="text-xs text-muted-foreground">Resources:</span>
                       <div className="flex items-center space-x-2">
-                        {resources.map((resource, index) => {
-                          const Icon = resource.icon;
-                          return (
-                            <div key={index} className="flex items-center">
-                              <Icon className="h-3 w-3 text-muted-foreground" />
-                            </div>
-                          );
-                        })}
+                        {completed && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 500 }}
+                          >
+                            <Badge variant="default" className="shrink-0 animate-pulse">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Complete
+                            </Badge>
+                          </motion.div>
+                        )}
+                        
+                        {!completed && (
+                          <Badge variant="secondary" className="shrink-0">
+                            <Clock className="h-3 w-3 mr-1" />
+                            Pending
+                          </Badge>
+                        )}
                       </div>
                     </div>
-                  )}
-                </CardHeader>
-                
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground line-clamp-3">
-                    {module.content.substring(0, 120)}...
-                  </p>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Link to={`/modules/${module.id}`} className="flex-1">
-                      <Button className="w-full">
-                        <BookOpen className="h-4 w-4 mr-2" />
-                        {completed ? 'Review' : 'Start Module'}
-                      </Button>
-                    </Link>
-                    
-                    {profile?.role === 'admin' && (
-                      <>
-                        <Link to={`/admin/modules/${module.id}/edit`}>
-                          <Button variant="outline" size="icon">
-                            <Edit3 className="h-4 w-4" />
-                          </Button>
-                        </Link>
-                        <Button 
-                          variant="outline" 
-                          size="icon"
-                          onClick={() => setDeleteModule(module)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </>
+
+                    {resources.length > 0 && (
+                      <div className="flex items-center space-x-3 pt-2">
+                        <span className="text-xs text-muted-foreground">Resources:</span>
+                        <div className="flex items-center space-x-2">
+                          {resources.map((resource, idx) => {
+                            const Icon = resource.icon;
+                            return (
+                              <motion.div 
+                                key={idx} 
+                                className="flex items-center"
+                                whileHover={{ scale: 1.2 }}
+                                transition={{ type: "spring", stiffness: 400 }}
+                              >
+                                <Icon className="h-3 w-3 text-primary" />
+                              </motion.div>
+                            );
+                          })}
+                        </div>
+                      </div>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardHeader>
+                  
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-muted-foreground line-clamp-3">
+                      {module.content.substring(0, 120)}...
+                    </p>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Link to={`/modules/${module.id}`} className="flex-1">
+                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                          <Button className="w-full group-hover:shadow-lg transition-all duration-300">
+                            <BookOpen className="h-4 w-4 mr-2" />
+                            {completed ? 'Review' : 'Start Module'}
+                          </Button>
+                        </motion.div>
+                      </Link>
+                      
+                      {profile?.role === 'admin' && (
+                        <>
+                          <Link to={`/admin/modules/${module.id}/edit`}>
+                            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                              <Button variant="outline" size="icon" className="hover:bg-primary/10">
+                                <Edit3 className="h-4 w-4" />
+                              </Button>
+                            </motion.div>
+                          </Link>
+                          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                            <Button 
+                              variant="outline" 
+                              size="icon"
+                              className="hover:bg-destructive/10"
+                              onClick={() => setDeleteModule(module)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </motion.div>
+                        </>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             );
           })}
         </div>
@@ -291,7 +336,7 @@ export const Modules = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </motion.div>
   );
 };
 
