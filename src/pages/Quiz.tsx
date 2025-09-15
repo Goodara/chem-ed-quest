@@ -145,7 +145,7 @@ export const Quiz = () => {
           user_id: user.id,
           quiz_id: moduleId, // Using module_id as quiz_id for grouping
           score: finalScore,
-          answers: JSON.stringify(attempts) as any
+          answers: attempts as any
         });
 
       if (error) throw error;

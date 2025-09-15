@@ -15,7 +15,8 @@ import {
   BarChart3,
   Award,
   Target,
-  ArrowRight
+  ArrowRight,
+  MessageSquare
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -275,6 +276,14 @@ export const Dashboard = () => {
                     <Button variant="outline" className="w-full justify-start">
                       <BarChart3 className="h-4 w-4 mr-2" />
                       View Analytics
+                    </Button>
+                  </motion.div>
+                </Link>
+                <Link to="/admin/comments">
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button variant="outline" className="w-full justify-start">
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Student Comments
                     </Button>
                   </motion.div>
                 </Link>

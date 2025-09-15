@@ -19,6 +19,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import CommentsSection from '@/components/CommentsSection';
 
 interface Module {
   id: string;
@@ -371,6 +372,9 @@ export const ModuleContent = () => {
           </Card>
         </motion.div>
       )}
+
+      {/* Comments Section */}
+      <CommentsSection moduleId={id!} />
     </motion.div>
   );
 };
