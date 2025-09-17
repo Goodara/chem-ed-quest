@@ -55,26 +55,38 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ moduleId }) =>
 
   const fetchComments = async () => {
     try {
-      const { data, error } = await supabase
+      // 1) Fetch comments for this module
+      const { data: commentRows, error: commentsError } = await supabase
         .from('comments')
-        .select(`
-          id,
-          content,
-          created_at,
-          user_id,
-          profiles!inner(name)
-        `)
+        .select('id, content, created_at, user_id')
         .eq('module_id', moduleId)
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
+      if (commentsError) throw commentsError;
 
-      const processedComments: Comment[] = (data || []).map(comment => ({
-        id: comment.id,
-        content: comment.content,
-        created_at: comment.created_at,
-        user_id: comment.user_id,
-        user_name: (comment.profiles as any)?.name || 'Anonymous'
+      const rows = commentRows || [];
+      const userIds = Array.from(new Set(rows.map((c) => c.user_id)));
+
+      // 2) Fetch profiles for those users (no FK relation available)
+      let profilesByUser: Record<string, { name?: string }> = {};
+      if (userIds.length > 0) {
+        const { data: profileRows, error: profilesError } = await supabase
+          .from('profiles')
+          .select('user_id, name')
+          .in('user_id', userIds);
+        if (profilesError) throw profilesError;
+        profilesByUser = (profileRows || []).reduce((acc: any, p: any) => {
+          acc[p.user_id] = { name: p.name };
+          return acc;
+        }, {});
+      }
+
+      const processedComments: Comment[] = rows.map((row: any) => ({
+        id: row.id,
+        content: row.content,
+        created_at: row.created_at,
+        user_id: row.user_id,
+        user_name: profilesByUser[row.user_id]?.name || 'Anonymous',
       }));
 
       setComments(processedComments);

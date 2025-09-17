@@ -47,30 +47,55 @@ export const StudentComments = () => {
 
   const fetchComments = async () => {
     try {
-      const { data, error } = await supabase
+      // 1) Fetch comments rows
+      const { data: commentRows, error: commentsError } = await supabase
         .from('comments')
-        .select(`
-          id,
-          content,
-          created_at,
-          user_id,
-          module_id,
-          profiles!inner(name, email),
-          modules!inner(title)
-        `)
+        .select('id, content, created_at, user_id, module_id')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (commentsError) throw commentsError;
 
-      const processedComments: Comment[] = (data || []).map(comment => ({
-        id: comment.id,
-        content: comment.content,
-        created_at: comment.created_at,
-        user_id: comment.user_id,
-        module_id: comment.module_id,
-        user_name: (comment.profiles as any)?.name || 'Unknown User',
-        user_email: (comment.profiles as any)?.email || 'No email',
-        module_title: (comment.modules as any)?.title || 'Unknown Module'
+      const rows = commentRows || [];
+      const userIds = Array.from(new Set(rows.map((c) => c.user_id)));
+      const moduleIds = Array.from(new Set(rows.map((c) => c.module_id)));
+
+      // 2) Fetch needed profiles
+      let profilesByUser: Record<string, { name?: string; email?: string }> = {};
+      if (userIds.length) {
+        const { data: profileRows, error: profilesError } = await supabase
+          .from('profiles')
+          .select('user_id, name, email')
+          .in('user_id', userIds);
+        if (profilesError) throw profilesError;
+        profilesByUser = (profileRows || []).reduce((acc: any, p: any) => {
+          acc[p.user_id] = { name: p.name, email: p.email };
+          return acc;
+        }, {});
+      }
+
+      // 3) Fetch needed modules
+      let modulesById: Record<string, { title?: string }> = {};
+      if (moduleIds.length) {
+        const { data: moduleRows, error: modulesError } = await supabase
+          .from('modules')
+          .select('id, title')
+          .in('id', moduleIds);
+        if (modulesError) throw modulesError;
+        modulesById = (moduleRows || []).reduce((acc: any, m: any) => {
+          acc[m.id] = { title: m.title };
+          return acc;
+        }, {});
+      }
+
+      const processedComments: Comment[] = rows.map((row: any) => ({
+        id: row.id,
+        content: row.content,
+        created_at: row.created_at,
+        user_id: row.user_id,
+        module_id: row.module_id,
+        user_name: profilesByUser[row.user_id]?.name || 'Unknown User',
+        user_email: profilesByUser[row.user_id]?.email || 'No email',
+        module_title: modulesById[row.module_id]?.title || 'Unknown Module',
       }));
 
       setComments(processedComments);

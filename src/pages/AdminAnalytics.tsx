@@ -105,6 +105,11 @@ export const AdminAnalytics = () => {
         .from('modules')
         .select('id, title');
 
+      // Fetch quizzes (for mapping quiz_id -> module_id)
+      const { data: quizzesMapData } = await supabase
+        .from('quizzes')
+        .select('id, module_id');
+
       // Fetch all progress
       const { data: progressData } = await supabase
         .from('progress')
@@ -203,9 +208,12 @@ export const AdminAnalytics = () => {
         }
       });
 
+      const quizToModule = new Map((quizzesMapData || []).map((q: any) => [q.id, q.module_id]));
+
       (attemptsData || []).forEach(a => {
-        if (moduleStatsMap.has(a.quiz_id)) {
-          const stat = moduleStatsMap.get(a.quiz_id);
+        const modId = quizToModule.get(a.quiz_id);
+        if (modId && moduleStatsMap.has(modId)) {
+          const stat = moduleStatsMap.get(modId);
           stat.total_attempts++;
           stat.scores.push(a.score);
         }

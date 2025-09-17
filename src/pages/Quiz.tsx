@@ -143,7 +143,7 @@ export const Quiz = () => {
         .from('quiz_attempts')
         .insert({
           user_id: user.id,
-          quiz_id: moduleId, // Using module_id as quiz_id for grouping
+          quiz_id: quizzes[0]?.id, // Use a valid quiz id to satisfy FK; groups attempts by module via first quiz
           score: finalScore,
           answers: attempts as any
         });
