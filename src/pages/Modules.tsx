@@ -204,7 +204,7 @@ export const Modules = () => {
           </Card>
         </motion.div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {modules.map((module, index) => {
             const completed = isCompleted(module.id);
             const resources = getModuleResources(module);
@@ -218,18 +218,18 @@ export const Modules = () => {
                 whileHover={{ y: -5 }}
               >
                 <Card className="group hover:shadow-xl transition-all duration-500 cursor-pointer border-2 hover:border-primary/20">
-                  <CardHeader className="space-y-3">
-                    <div className="flex items-start justify-between">
+                  <CardHeader className="space-y-3 p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                       <div className="flex-1 space-y-1">
-                        <CardTitle className="text-lg leading-tight group-hover:text-primary transition-colors">
+                        <CardTitle className="text-base sm:text-lg leading-tight group-hover:text-primary transition-colors">
                           {module.title}
                         </CardTitle>
-                        <CardDescription className="text-sm">
+                        <CardDescription className="text-xs sm:text-sm">
                           Added {new Date(module.created_at).toLocaleDateString()}
                         </CardDescription>
                       </div>
                       
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 shrink-0">
                         {completed && (
                           <motion.div
                             initial={{ scale: 0 }}
@@ -274,27 +274,27 @@ export const Modules = () => {
                     )}
                   </CardHeader>
                   
-                  <CardContent className="space-y-4">
-                    <p className="text-sm text-muted-foreground line-clamp-3">
+                  <CardContent className="space-y-4 p-4 sm:p-6 pt-0">
+                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-3">
                       {module.content.substring(0, 120)}...
                     </p>
                     
-                    <div className="flex items-center space-x-2">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                       <Link to={`/modules/${module.id}`} className="flex-1">
                         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                          <Button className="w-full group-hover:shadow-lg transition-all duration-300">
-                            <BookOpen className="h-4 w-4 mr-2" />
+                          <Button className="w-full group-hover:shadow-lg transition-all duration-300 text-xs sm:text-sm">
+                            <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                             {completed ? 'Review' : 'Start Module'}
                           </Button>
                         </motion.div>
                       </Link>
                       
                       {profile?.role === 'admin' && (
-                        <>
+                        <div className="flex space-x-2">
                           <Link to={`/admin/modules/${module.id}/edit`}>
                             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                              <Button variant="outline" size="icon" className="hover:bg-primary/10">
-                                <Edit3 className="h-4 w-4" />
+                              <Button variant="outline" size="icon" className="hover:bg-primary/10 h-8 w-8 sm:h-10 sm:w-10">
+                                <Edit3 className="h-3 w-3 sm:h-4 sm:w-4" />
                               </Button>
                             </motion.div>
                           </Link>
@@ -302,13 +302,13 @@ export const Modules = () => {
                             <Button 
                               variant="outline" 
                               size="icon"
-                              className="hover:bg-destructive/10"
+                              className="hover:bg-destructive/10 h-8 w-8 sm:h-10 sm:w-10"
                               onClick={() => setDeleteModule(module)}
                             >
-                              <Trash2 className="h-4 w-4 text-destructive" />
+                              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-destructive" />
                             </Button>
                           </motion.div>
-                        </>
+                        </div>
                       )}
                     </div>
                   </CardContent>

@@ -66,6 +66,31 @@ export const AdminAnalytics = () => {
     }
   }, [profile, navigate]);
 
+  // Add real-time updates
+  useEffect(() => {
+    if (profile?.role !== 'admin') return;
+
+    // Set up real-time subscriptions for data updates
+    const progressChannel = supabase
+      .channel('progress-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'progress' }, () => {
+        fetchAnalyticsData();
+      })
+      .subscribe();
+
+    const attemptsChannel = supabase
+      .channel('attempts-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quiz_attempts' }, () => {
+        fetchAnalyticsData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(progressChannel);
+      supabase.removeChannel(attemptsChannel);
+    };
+  }, [profile]);
+
   const fetchAnalyticsData = async () => {
     try {
       // Fetch all students
@@ -256,7 +281,7 @@ export const AdminAnalytics = () => {
       </div>
 
       {/* Overview Stats */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -362,24 +387,24 @@ export const AdminAnalytics = () => {
                               {student.student_email}
                             </Badge>
                           </div>
-                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                            <span className="flex items-center">
-                              <BookOpen className="h-3 w-3 mr-1" />
-                              {student.completed_modules}/{student.total_modules} modules
-                            </span>
-                            <span className="flex items-center">
-                              <Award className="h-3 w-3 mr-1" />
-                              {student.average_score.toFixed(1)}% avg score
-                            </span>
-                            <span className="flex items-center">
-                              <BarChart3 className="h-3 w-3 mr-1" />
-                              {student.total_attempts} attempts
-                            </span>
-                            <span className="flex items-center">
-                              <Clock className="h-3 w-3 mr-1" />
-                              Last active: {new Date(student.last_activity).toLocaleDateString()}
-                            </span>
-                          </div>
+                           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                             <span className="flex items-center">
+                               <BookOpen className="h-3 w-3 mr-1" />
+                               {student.completed_modules}/{student.total_modules} modules
+                             </span>
+                             <span className="flex items-center">
+                               <Award className="h-3 w-3 mr-1" />
+                               {student.average_score.toFixed(1)}% avg score
+                             </span>
+                             <span className="flex items-center">
+                               <BarChart3 className="h-3 w-3 mr-1" />
+                               {student.total_attempts} attempts
+                             </span>
+                             <span className="flex items-center">
+                               <Clock className="h-3 w-3 mr-1" />
+                               Last: {new Date(student.last_activity).toLocaleDateString()}
+                             </span>
+                           </div>
                         </div>
                         <div className="text-right">
                           <div className="text-lg font-semibold">

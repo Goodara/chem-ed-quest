@@ -38,6 +38,21 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ moduleId }) =>
     fetchComments();
   }, [moduleId]);
 
+  // Add real-time updates for comments
+  useEffect(() => {
+    const channel = supabase
+      .channel('comments-changes')
+      .on('postgres_changes', 
+        { event: 'INSERT', schema: 'public', table: 'comments', filter: `module_id=eq.${moduleId}` }, 
+        () => { fetchComments(); }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [moduleId]);
+
   const fetchComments = async () => {
     try {
       const { data, error } = await supabase
