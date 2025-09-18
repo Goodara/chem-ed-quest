@@ -1,10 +1,1 @@
 project_id = "sjbbnibpyhfcjskekrbi"
-
-[functions.hello-world]
-verify_jwt = false
-
-[functions.confirm-user]
-verify_jwt = false
-
-[functions.create-user]
-verify_jwt = false
