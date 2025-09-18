@@ -26,6 +26,18 @@ interface Student {
   created_at: string;
 }
 
+interface QuizAttempt {
+  user_id: string;
+  quiz_id: string;
+  score: number;
+  attempt_date: string;
+  quizzes?: {
+    modules?: {
+      title: string;
+    };
+  };
+}
+
 interface StudentProgress {
   student_id: string;
   student_name: string;
@@ -52,6 +64,7 @@ export const AdminAnalytics = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [studentProgress, setStudentProgress] = useState<StudentProgress[]>([]);
   const [moduleStats, setModuleStats] = useState<ModuleStats[]>([]);
+  const [attemptsData, setAttemptsData] = useState<QuizAttempt[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -85,9 +98,17 @@ export const AdminAnalytics = () => {
       })
       .subscribe();
 
+    const profilesChannel = supabase
+      .channel('profiles-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+        fetchAnalyticsData();
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(progressChannel);
       supabase.removeChannel(attemptsChannel);
+      supabase.removeChannel(profilesChannel);
     };
   }, [profile]);
 
@@ -120,15 +141,18 @@ export const AdminAnalytics = () => {
           updated_at
         `);
 
-      // Fetch all quiz attempts
-      const { data: attemptsData } = await supabase
+      // Fetch all quiz attempts with detailed info
+      const { data: attemptsDataRaw } = await supabase
         .from('quiz_attempts')
         .select(`
           user_id,
           quiz_id,
           score,
-          attempt_date
+          attempt_date,
+          quizzes!inner(module_id, modules!inner(title))
         `);
+
+      setAttemptsData(attemptsDataRaw || []);
 
       // Transform students data to match interface
       const transformedStudents: Student[] = (studentsData || []).map(s => ({
@@ -154,7 +178,7 @@ export const AdminAnalytics = () => {
 
       // Group attempts by user
       const attemptsMap = new Map();
-      (attemptsData || []).forEach(a => {
+      (attemptsDataRaw || []).forEach(a => {
         if (!attemptsMap.has(a.user_id)) {
           attemptsMap.set(a.user_id, []);
         }
@@ -210,7 +234,7 @@ export const AdminAnalytics = () => {
 
       const quizToModule = new Map((quizzesMapData || []).map((q: any) => [q.id, q.module_id]));
 
-      (attemptsData || []).forEach(a => {
+      (attemptsDataRaw || []).forEach(a => {
         const modId = quizToModule.get(a.quiz_id);
         if (modId && moduleStatsMap.has(modId)) {
           const stat = moduleStatsMap.get(modId);
@@ -259,9 +283,12 @@ export const AdminAnalytics = () => {
   }
 
   const totalStudents = students.length;
-  const activeStudents = studentProgress.filter(s => 
-    new Date(s.last_activity) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-  ).length;
+  const studentsMap = new Map(students.map(s => [s.id, s]));
+  const activeStudents = studentProgress.filter(s => {
+    const lastActivity = new Date(s.last_activity);
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    return lastActivity > oneWeekAgo;
+  }).length;
   const averageProgress = studentProgress.length > 0 
     ? studentProgress.reduce((sum, s) => sum + s.progress_percentage, 0) / studentProgress.length 
     : 0;
@@ -366,9 +393,10 @@ export const AdminAnalytics = () => {
         transition={{ duration: 0.6, delay: 0.5 }}
       >
         <Tabs defaultValue="students" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="students">Student Performance</TabsTrigger>
             <TabsTrigger value="modules">Module Analytics</TabsTrigger>
+            <TabsTrigger value="attempts">Quiz Attempts</TabsTrigger>
           </TabsList>
 
           <TabsContent value="students" className="space-y-6">
@@ -478,6 +506,83 @@ export const AdminAnalytics = () => {
                       </div>
                     </motion.div>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="attempts" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Quiz Attempts</CardTitle>
+                <CardDescription>All quiz submissions with student and module information</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {attemptsData && attemptsData.length > 0 ? (
+                    attemptsData
+                      .sort((a, b) => new Date(b.attempt_date).getTime() - new Date(a.attempt_date).getTime())
+                      .map((attempt, index) => {
+                        const student = studentsMap.get(attempt.user_id);
+                        const moduleTitle = attempt.quizzes?.modules?.title || 'Unknown Module';
+                        
+                        return (
+                          <motion.div
+                            key={`${attempt.user_id}-${attempt.quiz_id}-${attempt.attempt_date}`}
+                            className="p-4 border rounded-lg hover:shadow-sm transition-all duration-200"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.3, delay: index * 0.02 }}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="space-y-1">
+                                <div className="flex items-center space-x-3">
+                                  <h4 className="font-medium">{student?.name || 'Unknown Student'}</h4>
+                                  <Badge variant="outline" className="text-xs">
+                                    {student?.email || 'No email'}
+                                  </Badge>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                                  <span className="flex items-center">
+                                    <BookOpen className="h-3 w-3 mr-1" />
+                                    {moduleTitle}
+                                  </span>
+                                  <span className="flex items-center">
+                                    <Clock className="h-3 w-3 mr-1" />
+                                    {new Date(attempt.attempt_date).toLocaleDateString('en-US', {
+                                      year: 'numeric',
+                                      month: 'short',
+                                      day: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-lg font-semibold">
+                                  {attempt.score.toFixed(1)}%
+                                </div>
+                                <Badge 
+                                  variant={attempt.score >= 80 ? "default" : attempt.score >= 60 ? "secondary" : "destructive"}
+                                  className="text-xs"
+                                >
+                                  {attempt.score >= 80 ? "Excellent" : attempt.score >= 60 ? "Good" : "Needs Improvement"}
+                                </Badge>
+                              </div>
+                            </div>
+                          </motion.div>
+                        );
+                      })
+                  ) : (
+                    <div className="text-center py-12">
+                      <Award className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No quiz attempts yet</h3>
+                      <p className="text-muted-foreground">
+                        Students haven't taken any quizzes yet.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
