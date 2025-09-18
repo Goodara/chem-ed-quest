@@ -40,6 +40,7 @@ export type Database = {
       }
       modules: {
         Row: {
+          category: string
           content: string
           created_at: string
           id: string
@@ -51,6 +52,7 @@ export type Database = {
           video_url: string | null
         }
         Insert: {
+          category?: string
           content: string
           created_at?: string
           id?: string
@@ -62,6 +64,7 @@ export type Database = {
           video_url?: string | null
         }
         Update: {
+          category?: string
           content?: string
           created_at?: string
           id?: string

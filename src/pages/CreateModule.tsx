@@ -15,6 +15,7 @@ import {
   Plus,
   Trash2
 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 
 interface Module {
@@ -44,6 +45,7 @@ export const CreateModule = () => {
   const [module, setModule] = useState({
     title: '',
     content: '',
+    category: 'Heat Transfer',
     image_url: '',
     pdf_url: '',
     video_link: ''
@@ -80,6 +82,7 @@ export const CreateModule = () => {
       setModule({
         title: moduleData.title,
         content: moduleData.content,
+        category: moduleData.category || 'Heat Transfer',
         image_url: moduleData.image_url || '',
         pdf_url: moduleData.pdf_url || '',
         video_link: moduleData.video_link || ''
@@ -161,6 +164,7 @@ export const CreateModule = () => {
           .update({
             title: module.title,
             content: module.content,
+            category: module.category,
             image_url: module.image_url || null,
             pdf_url: module.pdf_url || null,
             video_link: module.video_link || null
@@ -174,6 +178,7 @@ export const CreateModule = () => {
           .insert([{
             title: module.title,
             content: module.content,
+            category: module.category,
             image_url: module.image_url || null,
             pdf_url: module.pdf_url || null,
             video_link: module.video_link || null
@@ -283,14 +288,30 @@ export const CreateModule = () => {
             <CardDescription>Basic module details and content</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="title">Module Title</Label>
-              <Input
-                id="title"
-                value={module.title}
-                onChange={(e) => setModule({...module, title: e.target.value})}
-                placeholder="Enter module title..."
-              />
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <Label htmlFor="title">Module Title</Label>
+                <Input
+                  id="title"
+                  value={module.title}
+                  onChange={(e) => setModule({...module, title: e.target.value})}
+                  placeholder="Enter module title..."
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="category">Category</Label>
+                <Select value={module.category} onValueChange={(value) => setModule({...module, category: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Momentum Transfer">Momentum Transfer</SelectItem>
+                    <SelectItem value="Heat Transfer">Heat Transfer</SelectItem>
+                    <SelectItem value="Mass Transfer">Mass Transfer</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div>

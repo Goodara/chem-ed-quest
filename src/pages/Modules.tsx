@@ -33,6 +33,7 @@ interface Module {
   id: string;
   title: string;
   content: string;
+  category: string;
   image_url?: string;
   pdf_url?: string;
   video_link?: string;
@@ -204,8 +205,26 @@ export const Modules = () => {
           </Card>
         </motion.div>
       ) : (
-        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {modules.map((module, index) => {
+        <div className="space-y-8">
+          {['Momentum Transfer', 'Heat Transfer', 'Mass Transfer'].map((category) => {
+            const categoryModules = modules.filter(module => module.category === category);
+            
+            if (categoryModules.length === 0) return null;
+            
+            return (
+              <motion.div
+                key={category}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                <div className="mb-4">
+                  <h2 className="text-2xl font-semibold text-primary mb-2">{category}</h2>
+                  <div className="h-1 w-20 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
+                </div>
+                
+                <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                  {categoryModules.map((module, index) => {
             const completed = isCompleted(module.id);
             const resources = getModuleResources(module);
 
@@ -313,6 +332,10 @@ export const Modules = () => {
                     </div>
                   </CardContent>
                 </Card>
+              </motion.div>
+                    );
+                  })}
+                </div>
               </motion.div>
             );
           })}
