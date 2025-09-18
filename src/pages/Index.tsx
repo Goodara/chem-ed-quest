@@ -2,55 +2,33 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  BookOpen, 
-  Target, 
-  Users, 
-  Trophy, 
-  ArrowRight, 
-  CheckCircle,
-  BarChart3,
-  Zap
-} from 'lucide-react';
+import { BookOpen, Target, Users, Trophy, ArrowRight, CheckCircle, BarChart3, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
 const Index = () => {
-  const { user, profile } = useAuth();
-
-  const features = [
-    {
-      icon: BookOpen,
-      title: "Interactive Modules",
-      description: "Learn Transport Phenomena through bite-sized, engaging content with visual aids and real-world examples."
-    },
-    {
-      icon: Target,
-      title: "Adaptive Quizzes",
-      description: "Test your understanding with multiple choice, numerical, and short answer questions with instant feedback."
-    },
-    {
-      icon: BarChart3,
-      title: "Progress Tracking",
-      description: "Monitor your learning journey with detailed analytics and personalized recommendations."
-    },
-    {
-      icon: Trophy,
-      title: "Achievement System",
-      description: "Earn badges and track your mastery of key concepts in momentum, heat, and mass transfer."
-    }
-  ];
-
-  const benefits = [
-    "Master complex engineering concepts through microlearning",
-    "Get instant feedback on your understanding",
-    "Track your progress with detailed analytics",
-    "Access content anywhere, anytime",
-    "Learn at your own pace with adaptive content"
-  ];
-
+  const {
+    user,
+    profile
+  } = useAuth();
+  const features = [{
+    icon: BookOpen,
+    title: "Interactive Modules",
+    description: "Learn Transport Phenomena through bite-sized, engaging content with visual aids and real-world examples."
+  }, {
+    icon: Target,
+    title: "Adaptive Quizzes",
+    description: "Test your understanding with multiple choice, numerical, and short answer questions with instant feedback."
+  }, {
+    icon: BarChart3,
+    title: "Progress Tracking",
+    description: "Monitor your learning journey with detailed analytics and personalized recommendations."
+  }, {
+    icon: Trophy,
+    title: "Achievement System",
+    description: "Earn badges and track your mastery of key concepts in momentum, heat, and mass transfer."
+  }];
+  const benefits = ["Master complex engineering concepts through microlearning", "Get instant feedback on your understanding", "Track your progress with detailed analytics", "Access content anywhere, anytime", "Learn at your own pace with adaptive content"];
   if (user) {
-    return (
-      <div className="space-y-16">
+    return <div className="space-y-16">
         {/* Welcome Back Section */}
         <section className="container mx-auto px-6 py-12 text-center">
           <div className="max-w-3xl mx-auto space-y-6">
@@ -76,12 +54,9 @@ const Index = () => {
             </div>
           </div>
         </section>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-16">
+  return <div className="space-y-16">
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-16 text-center">
         <div className="max-w-4xl mx-auto space-y-8">
@@ -135,9 +110,8 @@ const Index = () => {
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, index) => {
-            const Icon = feature.icon;
-            return (
-              <Card key={index} className="text-center hover:shadow-lg transition-all duration-300 border-0 bg-card/50 backdrop-blur">
+          const Icon = feature.icon;
+          return <Card key={index} className="text-center hover:shadow-lg transition-all duration-300 border-0 bg-card/50 backdrop-blur">
                 <CardHeader className="space-y-4">
                   <div className="mx-auto w-12 h-12 rounded-full bg-gradient-to-r from-primary/10 to-accent/10 flex items-center justify-center">
                     <Icon className="h-6 w-6 text-primary" />
@@ -149,9 +123,8 @@ const Index = () => {
                     {feature.description}
                   </CardDescription>
                 </CardContent>
-              </Card>
-            );
-          })}
+              </Card>;
+        })}
         </div>
       </section>
 
@@ -169,12 +142,10 @@ const Index = () => {
             </p>
             
             <ul className="space-y-3">
-              {benefits.map((benefit, index) => (
-                <li key={index} className="flex items-center space-x-3">
+              {benefits.map((benefit, index) => <li key={index} className="flex items-center space-x-3">
                   <CheckCircle className="h-5 w-5 text-accent shrink-0" />
                   <span>{benefit}</span>
-                </li>
-              ))}
+                </li>)}
             </ul>
             
             <Link to="/auth">
@@ -199,7 +170,7 @@ const Index = () => {
                 </div>
                 <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
                   <span className="font-medium">Heat Transfer</span>
-                  <Badge variant="secondary">10 Modules</Badge>
+                  <Badge variant="secondary">5 Modules</Badge>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
                   <span className="font-medium">Mass Transfer</span>
@@ -233,8 +204,6 @@ const Index = () => {
           </div>
         </Card>
       </section>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
