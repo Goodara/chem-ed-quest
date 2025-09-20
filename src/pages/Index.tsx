@@ -189,9 +189,7 @@ const Index = () => {
             <h2 className="text-3xl md:text-4xl font-bold">
               Ready to Transform Your Learning?
             </h2>
-            <p className="text-xl text-muted-foreground">
-              Join thousands of students already mastering Transport Phenomena with TransportEd
-            </p>
+            <p className="text-xl text-muted-foreground">Join students already mastering Transport Phenomena with TransportEd</p>
             <Link to="/auth">
               <Button size="lg">
                 Create Free Account
