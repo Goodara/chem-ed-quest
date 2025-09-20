@@ -166,7 +166,7 @@ const Index = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
                   <span className="font-medium">Momentum Transfer</span>
-                  <Badge variant="secondary">12 Modules</Badge>
+                  <Badge variant="secondary">8 Modules</Badge>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
                   <span className="font-medium">Heat Transfer</span>
@@ -174,7 +174,7 @@ const Index = () => {
                 </div>
                 <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
                   <span className="font-medium">Mass Transfer</span>
-                  <Badge variant="secondary">8 Modules</Badge>
+                  <Badge variant="secondary">10 Modules</Badge>
                 </div>
               </div>
             </div>
